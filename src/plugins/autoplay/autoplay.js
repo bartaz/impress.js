@@ -31,9 +31,10 @@
         // Element attributes starting with "data-", become available under
         // element.dataset. In addition hyphenized words become camelCased.
         var data = root.dataset;
+        var autoplay = util.getUrlParamValue( "impress-autoplay" ) || data.autoplay;
 
-        if ( data.autoplay ) {
-            autoplayDefault = util.toNumber( data.autoplay, 0 );
+        if ( autoplay ) {
+            autoplayDefault = util.toNumber( autoplay, 0 );
         }
 
         var toolbar = document.querySelector( "#impress-toolbar" );
@@ -47,6 +48,16 @@
 
         // Note that right after impress:init event, also impress:stepenter is
         // triggered for the first slide, so that's where code flow continues.
+    }, false );
+
+    document.addEventListener( "impress:autoplay:pause", function( event ) {
+        status = "paused";
+        reloadTimeout( event );
+    }, false );
+
+    document.addEventListener( "impress:autoplay:play", function( event ) {
+        status = "playing";
+        reloadTimeout( event );
     }, false );
 
     // If default autoplay time was defined in the presentation root, or
@@ -65,7 +76,7 @@
         reloadTimeout( event );
     }, false );
 
-    document.addEventListener( "impress:substep:stepleaveaborted", function( event ) {
+    document.addEventListener( "impress:substep:enter", function( event ) {
         reloadTimeout( event );
     }, false );
 
@@ -86,13 +97,6 @@
     /*** Toolbar plugin integration *******************************************/
     var status = "not clicked";
     var toolbarButton = null;
-
-    // Copied from core impress.js. Good candidate for moving to a utilities collection.
-    var triggerEvent = function( el, eventName, detail ) {
-        var event = document.createEvent( "CustomEvent" );
-        event.initCustomEvent( eventName, true, true, detail );
-        el.dispatchEvent( event );
-    };
 
     var makeDomElement = function( html ) {
         var tempDiv = document.createElement( "div" );
@@ -152,7 +156,7 @@
             }
         } );
 
-        triggerEvent( toolbar, "impress:toolbar:appendChild",
+        util.triggerEvent( toolbar, "impress:toolbar:appendChild",
                       { group: 10, element: toolbarButton } );
     };
 

@@ -14,17 +14,19 @@ rather require the user to invoke them somehow. For example:
 * The *navigation* plugin waits for the user to press some keys, arrows, page
   down, page up, space or tab.
 * The *autoplay* plugin looks for the HTML attribute `data-autoplay` to see
-  whether it should do its thing.
+  whether it should do its thing. It can also be triggered with a URL GET parameter
+  `?impress-autoplay=5` *5 is the waiting duration*. 
 * The *toolbar* plugin looks for a `<div>` element to become visible.
 
 Extra addons
 ------------
 
 Yet more features are available in presentations that enable 
-[extra addons](../../extras/). Extra addons are 3rd party plugins integrated
-into impress.js to provide convenient and standardized access to them. However,
-they are not activated by default, rather must be included with a `<script>`
-tag.
+[extra addons](https://github.com/impress/impress-extras). Extra addons are 3rd party plugins 
+that are not part of impress.js, but that we have nevertheless collected together into the 
+impress-extras repo to provide convenient and standardized access to them. To include 
+the extra addons when checking out impress.js, use git clone --recursive. Even then, they 
+are not activated by default in a presentation, rather each must be included with their own `<script>` tag.
 
 Note: The enabled extra addons are automatically initialized by the *extras*
 plugin.
@@ -38,6 +40,12 @@ HTML and CSS that you can use with that plugin.
 
 For your convenience, below is some sample HTML and CSS code covering all the
 plugins that you may want to use or adapt.
+
+Additional parameters for addons
+--------------------------------
+
+Some addons can handle additional HTML data attributes to help us in further customization:
+- Markdown-JS: You can pass a specific Markdown dialect to the plugin using `data-markdown-dialect="Another Dialect"`.
 
 ### Sample HTML to enable plugins and extra addons
 
@@ -79,85 +87,7 @@ plugins that you may want to use or adapt.
 
 ### Sample CSS related to plugins and extra addons
 
-    /* Using the substep plugin, hide bullet points at first, then show them one by one. */
-    #impress .step .substep {
-        opacity: 0;
-    }
-
-    #impress .step .substep.substep-visible {
-        opacity: 1;
-        transition: opacity 1s;
-    }
-    /*
-      Speaker notes allow you to write comments within the steps, that will not 
-      be displayed as part of the presentation. However, they will be picked up
-      and displayed by impressConsole.js when you press P.
-    */
-    .notes {
-        display: none;
-    }
-
-    /* Toolbar plugin */
-    .impress-enabled div#impress-toolbar {
-        position: fixed;
-        right: 1px;
-        bottom: 1px;
-        opacity: 0.6;
-        z-index: 10;
-    }
-    .impress-enabled div#impress-toolbar > span {
-        margin-right: 10px;
-    }
-    .impress-enabled div#impress-toolbar.impress-toolbar-show {
-        display: block;
-    }
-    .impress-enabled div#impress-toolbar.impress-toolbar-hide {
-        display: none;
-    }
-    /* If you disable pointer-events (like in the impress.js official demo), you need to re-enable them for the toolbar. */
-    .impress-enabled #impress-toolbar         { pointer-events: auto }
-    /* Progress bar */
-    .impress-enabled .impress-progressbar {
-      position: absolute;
-      right: 318px;
-      bottom: 1px;
-      left: 118px;
-      border-radius: 7px;
-      border: 2px solid rgba(100, 100, 100, 0.2);
-    }
-    .impress-enabled .impress-progressbar DIV {
-      width: 0;
-      height: 2px;
-      border-radius: 5px;
-      background: rgba(75, 75, 75, 0.4);
-      transition: width 1s linear;
-    }
-    .impress-enabled .impress-progress {
-      position: absolute;
-      left: 59px;
-      bottom: 1px;
-      text-align: left;
-      opacity: 0.6;
-    }
-    .impress-enabled #impress-help {
-        background: none repeat scroll 0 0 rgba(0, 0, 0, 0.5);
-        color: #EEEEEE;
-        font-size: 80%;
-        position: fixed;
-        left: 2em;
-        bottom: 2em;
-        width: 24em;
-        border-radius: 1em;
-        padding: 1em;
-        text-align: center;
-        z-index: 100;
-        font-family: Verdana, Arial, Sans;
-    }
-    .impress-enabled #impress-help td {
-        padding-left: 1em;
-        padding-right: 1em;
-    }
-
+The sample css related to plugins and extra addons is located in [css/impress-common.css](../../css/impress-common.css).
 
 For developers
 ==============
@@ -432,7 +362,7 @@ Example:
     }, false);
     
     // pluginB
-    document.addEventListener("impress:init", function (event) {
+    document.addEventListener("impress:plugina:init", function (event) {
         // plugin B implementation
     }, false);
 

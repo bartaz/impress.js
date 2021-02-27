@@ -34,8 +34,11 @@
             if ( el ) {
 
                 // Send a message to others, that we aborted a stepleave event.
-                // Autoplay will reload itself from this, as there won't be a stepenter event now.
                 triggerEvent( step, "impress:substep:stepleaveaborted",
+                              { reason: "next", substep: el } );
+
+                // Autoplay uses this for reloading itself
+                triggerEvent( step, "impress:substep:enter",
                               { reason: "next", substep: el } );
 
                 // Returning false aborts the stepleave event
@@ -47,6 +50,10 @@
             if ( el ) {
                 triggerEvent( step, "impress:substep:stepleaveaborted",
                               { reason: "prev", substep: el } );
+
+                triggerEvent( step, "impress:substep:leave",
+                              { reason: "prev", substep: el } );
+
                 return false;
             }
         }
@@ -54,16 +61,36 @@
 
     var showSubstepIfAny = function( step ) {
         var substeps = step.querySelectorAll( ".substep" );
-        var visible = step.querySelectorAll( ".substep-visible" );
         if ( substeps.length > 0 ) {
-            return showSubstep( substeps, visible );
+            var sorted = sortSubsteps( substeps );
+            var visible = step.querySelectorAll( ".substep-visible" );
+            return showSubstep( sorted, visible );
         }
+    };
+
+    var sortSubsteps = function( substepNodeList ) {
+        var substeps = Array.from( substepNodeList );
+        var sorted = substeps
+            .filter( el => el.dataset.substepOrder )
+            .sort( ( a, b ) => {
+                var orderA = a.dataset.substepOrder;
+                var orderB = b.dataset.substepOrder;
+                return parseInt( orderA ) - parseInt( orderB );
+            } )
+            .concat( substeps.filter( el => {
+                return el.dataset.substepOrder === undefined;
+            } ) );
+        return sorted;
     };
 
     var showSubstep = function( substeps, visible ) {
         if ( visible.length < substeps.length ) {
+            for ( var i = 0; i < substeps.length; i++ ) {
+                substeps[ i ].classList.remove( "substep-active" );
+            }
             var el = substeps[ visible.length ];
             el.classList.add( "substep-visible" );
+            el.classList.add( "substep-active" );
             return el;
         }
     };
@@ -71,13 +98,24 @@
     var hideSubstepIfAny = function( step ) {
         var substeps = step.querySelectorAll( ".substep" );
         var visible = step.querySelectorAll( ".substep-visible" );
+        var sorted = sortSubsteps( visible );
         if ( substeps.length > 0 ) {
-            return hideSubstep( visible );
+            return hideSubstep( sorted );
         }
     };
 
     var hideSubstep = function( visible ) {
         if ( visible.length > 0 ) {
+            var current = -1;
+            for ( var i = 0; i < visible.length; i++ ) {
+                if ( visible[ i ].classList.contains( "substep-active" ) ) {
+                    current = i;
+                }
+                visible[ i ].classList.remove( "substep-active" );
+            }
+            if ( current > 0 ) {
+                visible[ current - 1 ].classList.add( "substep-active" );
+            }
             var el = visible[ visible.length - 1 ];
             el.classList.remove( "substep-visible" );
             return el;
@@ -108,4 +146,3 @@
     }, false );
 
 } )( document, window );
-
