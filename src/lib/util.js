@@ -37,7 +37,7 @@
 
         // `byId` returns element with given `id` - you probably have guessed that ;)
         var byId = function( id ) {
-            return document.getElementById( id );
+            return document.getElementById( decodeURIComponent( id ) );
         };
 
         // `getElementFromHash` returns an element located by id from hash part of
